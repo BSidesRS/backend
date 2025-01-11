@@ -9,6 +9,7 @@ from freenit.permissions import user_perms
 
 from ..models.conference import Conference, ConferenceOptional
 from ..models.day import Day
+from ..models.room import Room
 
 tags = ["conference"]
 
@@ -29,7 +30,12 @@ class ConferenceListAPI:
                 status_code=403, detail="Only admins can create conferences"
             )
         await conference.save()
-        conference.day = Day()
+        day = Day(conference=conference)
+        await day.save()
+        conference.days = [day]
+        room = Room(conference=conference)
+        await room.save()
+        conference.rooms = [room]
         return conference
 
 
@@ -75,4 +81,3 @@ class ConferenceDetailAPI:
             raise HTTPException(status_code=404, detail="No such conference")
         await conference.delete()
         return conference
-
