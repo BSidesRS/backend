@@ -1,6 +1,8 @@
 import ormar
 from freenit.models.sql.base import OrmarBaseModel, make_optional, ormar_config
 from freenit.models.user import User
+from .day import Day
+from .room import Room
 
 
 class Presentation(OrmarBaseModel):
@@ -12,6 +14,8 @@ class Presentation(OrmarBaseModel):
     user = ormar.ForeignKey(User)
     start = ormar.DateTime()
     duration = ormar.Integer()
+    day = ormar.ForeignKey(Day)
+    room = ormar.ForeignKey(Room)
 
 
 class PresentationOptional(Presentation):

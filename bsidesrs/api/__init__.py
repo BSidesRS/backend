@@ -1,3 +1,6 @@
 from .router import api
-import freenit.api.user
-import bsidesrs.api.presentation
+from freenit.api import user
+from freenit.api import role
+from . import conference
+from . import day
+from . import presentation
