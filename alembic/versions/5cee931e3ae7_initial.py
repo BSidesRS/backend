@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: af49dc41563e
+Revision ID: 5cee931e3ae7
 Revises: 
-Create Date: 2025-01-11 21:43:59.195881
+Create Date: 2025-01-12 00:14:22.162256
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "af49dc41563e"
+revision = "5cee931e3ae7"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -67,7 +67,7 @@ def upgrade():
     op.create_table(
         "days",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("date", sa.Date(), nullable=False),
+        sa.Column("date", sa.Date(), nullable=True),
         sa.Column("conference", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["conference"], ["conferences.id"], name="fk_days_conferences_id_conference"
@@ -86,7 +86,7 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_rooms_name"), "rooms", ["name"], unique=True)
+    op.create_index(op.f("ix_rooms_name"), "rooms", ["name"], unique=False)
     op.create_table(
         "users_roles",
         sa.Column("id", sa.Integer(), nullable=False),

@@ -32,10 +32,9 @@ class ConferenceListAPI:
         await conference.save()
         day = Day(conference=conference)
         await day.save()
-        conference.days = [day]
-        room = Room(conference=conference)
+        room = Room(name='room1', conference=conference)
         await room.save()
-        conference.rooms = [room]
+        await conference.load_all()
         return conference
 
 

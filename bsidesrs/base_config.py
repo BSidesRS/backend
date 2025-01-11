@@ -11,6 +11,7 @@ class DevConfig(BaseConfig):
     debug = True
     auth = Auth(False)
     dburl = "sqlite:///db.sqlite"
+    mail = None
 
 
 class TestConfig(BaseConfig):

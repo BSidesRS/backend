@@ -12,7 +12,7 @@ from ..models.presentation import Presentation, PresentationOptional
 tags = ["presentation"]
 
 
-@route("/presentations", tags=tags)
+@route("/{conference}/presentations", tags=tags)
 class PresentationListAPI:
     @staticmethod
     async def get() -> List[Presentation]:
