@@ -19,7 +19,13 @@ class ConferenceListAPI:
         page: int = Header(default=1),
         perpage: int = Header(default=10),
     ) -> Page[Conference]:
-        return await paginate(Conference.objects, page, perpage)
+        conferences = (
+            await Conference.objects
+            .select_related("rooms")
+            .select_related("days")
+            .exclude_fields(["rooms__conference", "days__conference"])
+        )
+        return await paginate(conferences, page, perpage)
 
     @staticmethod
     async def post(
@@ -44,7 +50,13 @@ class ConferenceDetailAPI:
     @staticmethod
     async def get(id: int) -> Conference:
         try:
-            conference = await Conference.objects.get(pk=id)
+            conference = (
+                await Conference.objects
+                .select_related("rooms")
+                .select_related("days")
+                .exclude_fields(["rooms__conference", "days__conference"])
+                .get(pk=id)
+            )
         except ormar.exceptions.NoMatch:
             raise HTTPException(status_code=404, detail="No such conference")
         return conference
@@ -60,7 +72,13 @@ class ConferenceDetailAPI:
                 status_code=403, detail="Only admins can edit conferences"
             )
         try:
-            conference = await Conference.objects.get(pk=id)
+            conference = (
+                await Conference.objects
+                .select_related("rooms")
+                .select_related("days")
+                .exclude_fields(["rooms__conference", "days__conference"])
+                .get(pk=id)
+            )
             await conference.patch(conference_data)
         except ormar.exceptions.NoMatch:
             raise HTTPException(status_code=404, detail="No such conference")
@@ -79,5 +97,6 @@ class ConferenceDetailAPI:
             conference = await Conference.objects.get(pk=id)
         except ormar.exceptions.NoMatch:
             raise HTTPException(status_code=404, detail="No such conference")
+        conference.load_all()
         await conference.delete()
         return conference

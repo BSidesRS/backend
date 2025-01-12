@@ -8,7 +8,7 @@ class Room(OrmarBaseModel):
 
     id = ormar.Integer(primary_key=True)
     name = ormar.Text(index=True)
-    conference = ormar.ForeignKey(Conference, related_name="rooms")
+    conference = ormar.ForeignKey(Conference)
 
 
 class RoomOptional(Room):
