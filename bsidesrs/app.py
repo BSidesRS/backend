@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-import bsidesrs.config
+from .config import getConfig
 
 from .api import api
 
-config = bsidesrs.config.getConfig()
+config = getConfig()
 
 
 @asynccontextmanager

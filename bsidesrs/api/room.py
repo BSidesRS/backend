@@ -1,11 +1,9 @@
-from typing import List
-
-import ormar
 import ormar.exceptions
-from fastapi import Depends, HTTPException
+from fastapi import Depends, Header, HTTPException
 from freenit.api.router import route
 from freenit.models.user import User
 from freenit.permissions import user_perms
+from freenit.models.pagination import Page, paginate
 
 from ..models.conference import Conference
 from ..models.room import Room, RoomOptional
@@ -16,12 +14,16 @@ tags = ["room"]
 @route("/{conference}/rooms", tags=tags)
 class RoomListAPI:
     @staticmethod
-    async def get(conference: str) -> List[Room]:
+    async def get(
+        conference: str,
+        page: int = Header(default=1),
+        perpage: int = Header(default=10),
+    ) -> Page[Room]:
         try:
             conf = await Conference.objects.get(name=conference)
         except ormar.exceptions.NoMatch:
             raise HTTPException(status_code=404, detail="No such conference")
-        return conf.rooms
+        return await paginate(conf.rooms, page, perpage)
 
     @staticmethod
     async def post(

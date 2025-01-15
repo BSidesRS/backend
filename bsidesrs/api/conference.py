@@ -1,11 +1,9 @@
-from typing import List
-
-import ormar
 import ormar.exceptions
-from fastapi import Depends, HTTPException
+from fastapi import Depends, Header, HTTPException
 from freenit.api.router import route
 from freenit.models.user import User
 from freenit.permissions import user_perms
+from freenit.models.pagination import Page, paginate
 
 from ..models.conference import Conference, ConferenceOptional
 from ..models.day import Day
@@ -17,8 +15,11 @@ tags = ["conference"]
 @route("/conferences", tags=tags)
 class ConferenceListAPI:
     @staticmethod
-    async def get() -> List[Conference]:
-        return await Conference.objects.all()
+    async def get(
+        page: int = Header(default=1),
+        perpage: int = Header(default=10),
+    ) -> Page[Conference]:
+        return await paginate(Conference.objects, page, perpage)
 
     @staticmethod
     async def post(
@@ -32,7 +33,7 @@ class ConferenceListAPI:
         await conference.save()
         day = Day(conference=conference)
         await day.save()
-        room = Room(name='room1', conference=conference)
+        room = Room(name="room1", conference=conference)
         await room.save()
         await conference.load_all()
         return conference

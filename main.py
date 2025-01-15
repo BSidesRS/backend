@@ -1,4 +1,4 @@
-from bsidesrs.config import getConfig
+from freenit.config import getConfig
 import uvicorn
 
 config = getConfig()

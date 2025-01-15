@@ -1,11 +1,9 @@
-from typing import List
-
-import ormar
 import ormar.exceptions
-from fastapi import Depends, HTTPException
+from fastapi import Depends, Header, HTTPException
 from freenit.api.router import route
 from freenit.models.user import User
 from freenit.permissions import user_perms
+from freenit.models.pagination import Page, paginate
 
 from ..models.presentation import Presentation, PresentationOptional
 
@@ -15,8 +13,11 @@ tags = ["presentation"]
 @route("/{conference}/presentations", tags=tags)
 class PresentationListAPI:
     @staticmethod
-    async def get() -> List[Presentation]:
-        return await Presentation.objects.all()
+    async def get(
+        page: int = Header(default=1),
+        perpage: int = Header(default=10),
+    ) -> Page[Presentation]:
+        return await paginate(Presentation.objects, page, perpage)
 
     @staticmethod
     async def post(
