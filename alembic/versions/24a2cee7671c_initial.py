@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: 82e4575a4fac
+Revision ID: 24a2cee7671c
 Revises:
-Create Date: 2025-01-15 20:46:19.176602
+Create Date: 2025-01-16 01:11:04.140252
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "82e4575a4fac"
+revision = "24a2cee7671c"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -70,7 +70,10 @@ def upgrade():
         sa.Column("date", sa.Date(), nullable=True),
         sa.Column("conference", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["conference"], ["conferences.id"], name="fk_days_conferences_id_conference"
+            ["conference"],
+            ["conferences.id"],
+            name="fk_days_conferences_id_conference",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -83,6 +86,7 @@ def upgrade():
             ["conference"],
             ["conferences.id"],
             name="fk_rooms_conferences_id_conference",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -114,18 +118,27 @@ def upgrade():
         sa.Column("title", sa.Text(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
         sa.Column("user", sa.Integer(), nullable=True),
-        sa.Column("start", sa.DateTime(), nullable=False),
+        sa.Column("start", sa.Time(), nullable=True),
         sa.Column("duration", sa.Integer(), nullable=False),
         sa.Column("day", sa.Integer(), nullable=True),
         sa.Column("room", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["day"], ["days.id"], name="fk_presentations_days_id_day"
+            ["day"],
+            ["days.id"],
+            name="fk_presentations_days_id_day",
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["room"], ["rooms.id"], name="fk_presentations_rooms_id_room"
+            ["room"],
+            ["rooms.id"],
+            name="fk_presentations_rooms_id_room",
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["user"], ["users.id"], name="fk_presentations_users_id_user"
+            ["user"],
+            ["users.id"],
+            name="fk_presentations_users_id_user",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

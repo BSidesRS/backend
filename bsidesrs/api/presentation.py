@@ -5,7 +5,8 @@ from freenit.models.user import User
 from freenit.permissions import user_perms
 from freenit.models.pagination import Page, paginate
 
-from ..models.presentation import Presentation, PresentationOptional
+from ..models.conference import Conference
+from ..models.presentation import Presentation, PresentationOptional, PresentationSafe
 
 tags = ["presentation"]
 
@@ -14,17 +15,33 @@ tags = ["presentation"]
 class PresentationListAPI:
     @staticmethod
     async def get(
+        conference: str,
         page: int = Header(default=1),
         perpage: int = Header(default=10),
-    ) -> Page[Presentation]:
-        return await paginate(Presentation.objects, page, perpage)
+    ) -> Page[PresentationSafe]:
+        try:
+            conf = await Conference.objects.select_related("rooms").get(name=conference)
+        except ormar.exceptions.NoMatch:
+            raise HTTPException(status_code=404, detail="No such conference")
+        query = Presentation.objects.select_related(["day", "room", "user"]).filter(
+            room__in=[r.pk for r in conf.rooms]
+        )
+        return await paginate(query, page, perpage)
 
     @staticmethod
     async def post(
+        conference: str,
         presentation: Presentation,
         user: User = Depends(user_perms),
-    ) -> Presentation:
+    ) -> PresentationSafe:
+        try:
+            conf = await Conference.objects.select_related("rooms").get(name=conference)
+        except ormar.exceptions.NoMatch:
+            raise HTTPException(status_code=404, detail="No such conference")
+        if len(conf.rooms) == 0:
+            raise HTTPException(status_code=409, detail="Conference has no rooms")
         presentation.user = user
+        presentation.room = conf.rooms[0]
         await presentation.save()
         return presentation
 
@@ -32,7 +49,7 @@ class PresentationListAPI:
 @route("/presentations/{id}", tags=tags)
 class PresentationDetailAPI:
     @staticmethod
-    async def get(id: int) -> Presentation:
+    async def get(id: int) -> PresentationSafe:
         try:
             presentation = await Presentation.objects.get(pk=id)
         except ormar.exceptions.NoMatch:
@@ -44,7 +61,7 @@ class PresentationDetailAPI:
         id: int,
         presentation_data: PresentationOptional,
         user: User = Depends(user_perms),
-    ) -> Presentation:
+    ) -> PresentationSafe:
         try:
             presentation = await Presentation.objects.get(pk=id)
             if not user.admin and presentation.user.id != user.id:
@@ -60,7 +77,7 @@ class PresentationDetailAPI:
     async def delete(
         id: int,
         user: User = Depends(user_perms),
-    ) -> Presentation:
+    ) -> PresentationSafe:
         try:
             presentation = await Presentation.objects.get(pk=id)
             if not user.admin and presentation.user.id != user.id:

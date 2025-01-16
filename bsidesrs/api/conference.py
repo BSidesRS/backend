@@ -20,9 +20,8 @@ class ConferenceListAPI:
         perpage: int = Header(default=10),
     ) -> Page[Conference]:
         conferences = (
-            await Conference.objects
-            .select_related("rooms")
-            .select_related("days")
+            Conference.objects
+            .select_related(["days", "rooms"])
             .exclude_fields(["rooms__conference", "days__conference"])
         )
         return await paginate(conferences, page, perpage)
@@ -97,6 +96,5 @@ class ConferenceDetailAPI:
             conference = await Conference.objects.get(pk=id)
         except ormar.exceptions.NoMatch:
             raise HTTPException(status_code=404, detail="No such conference")
-        conference.load_all()
         await conference.delete()
         return conference

@@ -9,7 +9,7 @@ class Day(OrmarBaseModel):
 
     id = ormar.Integer(primary_key=True)
     date = ormar.Date(default=datetime.date.today)
-    conference = ormar.ForeignKey(Conference)
+    conference = ormar.ForeignKey(Conference, ondelete="CASCADE")
 
 
 class DayOptional(Day):
