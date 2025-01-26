@@ -26,6 +26,7 @@ classifiers = [
 
 [project.optional-dependencies]
   beanie = ["freenit[beanie]"]
+  build = ["freenit[build]"]
   dev = ["freenit[dev]"]
   ldap = ["freenit[ldap]"]
   ormar = ["freenit[ormar]"]
